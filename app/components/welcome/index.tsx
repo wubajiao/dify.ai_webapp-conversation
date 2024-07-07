@@ -139,9 +139,37 @@ const Welcome: FC<IWelcomeProps> = ({
     return true
   }
 
-  const handleChat = () => {
+  const postInputs = async () => {
+    // 内部接口
+    // updateFeedback({ url: `/messages/1/feedbacks`, body: { content: `${inputs}`, rating: 'like' } })
+
+    // 外部接口
+    try {
+      const options = {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ inputs }), // body data type must match "Content-Type" header
+      }
+      const response = await fetch('https://api.example.com/data', options)
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`)
+
+      onStartChat(inputs)
+      const data = await response.json()
+      console.log('🚀 ~ postInputs ~ data:', data)
+    }
+    catch (error) {
+      console.log('🚀 ~ postInputs ~ error:', error)
+    }
+  }
+
+  const handleChat = async () => {
     if (!canChat())
       return
+
+    await postInputs()
 
     onStartChat(inputs)
   }

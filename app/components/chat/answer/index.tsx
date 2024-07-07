@@ -15,6 +15,8 @@ import WorkflowProcess from '@/app/components/workflow/workflow-process'
 import { Markdown } from '@/app/components/base/markdown'
 import type { Emoji } from '@/types/tools'
 
+const suggestQuestions = ['分析特斯拉股票', '茅台怎样？', '亚马逊如何']
+
 const OperationBtn = ({ innerContent, onClick, className }: { innerContent: React.ReactNode; onClick?: () => void; className?: string }) => (
   <div
     className={`relative box-border flex items-center justify-center h-7 w-7 p-0.5 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800 ${className ?? ''}`}
@@ -56,8 +58,10 @@ const IconWrapper: FC<{ children: React.ReactNode | string }> = ({ children }) =
 
 type IAnswerProps = {
   item: ChatItem
+  index: number
   feedbackDisabled: boolean
   onFeedback?: FeedbackFunc
+  onSend?: any
   isResponsing?: boolean
   allToolIcons?: Record<string, string | Emoji>
 }
@@ -65,11 +69,15 @@ type IAnswerProps = {
 // The component needs to maintain its own state to control whether to display input component
 const Answer: FC<IAnswerProps> = ({
   item,
+  index,
   feedbackDisabled = false,
   onFeedback,
+  onSend,
   isResponsing,
   allToolIcons,
 }) => {
+  console.log('🚀 ~ item:', item)
+  console.log('🚀 ~ index:', index)
   const { id, content, feedback, agent_thoughts, workflowProcess } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
 
@@ -190,7 +198,14 @@ const Answer: FC<IAnswerProps> = ({
                 : (isAgentMode
                   ? agentModeAnswer
                   : (
-                    <Markdown content={content} />
+                    <>
+                      <Markdown content={content} index={index} onFeedback={onFeedback} />
+                      <div className='flex items-center mt-2'>
+                        {index === 0 && suggestQuestions.map((item) => {
+                          return <div key={item} className='mt-1 mr-1 max-w-full last:mr-0 shrink-0 py-[5px] leading-[18px] items-center px-4 rounded-lg border border-gray-200 shadow-xs bg-white text-xs font-medium text-primary-600 cursor-pointer' onClick={() => onSend(item)} >{item}</div>
+                        })}
+                      </div>
+                    </>
                   ))}
             </div>
             <div className='absolute top-[-14px] right-[-14px] flex flex-row justify-end gap-1'>

@@ -69,6 +69,34 @@ const Chat: FC<IChatProps> = ({
     return true
   }
 
+  const postChatList = async () => {
+    // 内部接口
+    // updateFeedback({ url: `/messages/1/feedbacks`, body: { content: `${chatList.length}`, rating: 'like' } })
+
+    // 外部接口
+    try {
+      const options = {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ chatListLength: chatList.length }), // body data type must match "Content-Type" header
+      }
+      const response = await fetch('https://api.example.com/data', options)
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`)
+      const data = await response.json()
+      console.log('🚀 ~ postChatList ~ data:', data)
+    }
+    catch (error) {
+      console.log('🚀 ~ postChatList ~ error:', error)
+    }
+  }
+
+  useEffect(() => {
+    // postChatList()
+  }, [chatList])
+
   useEffect(() => {
     if (controlClearQuery)
       setQuery('')
@@ -121,14 +149,17 @@ const Chat: FC<IChatProps> = ({
     <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
       {/* Chat List */}
       <div className="h-full space-y-[30px]">
-        {chatList.map((item) => {
+        {chatList.map((item, index) => {
           if (item.isAnswer) {
             const isLast = item.id === chatList[chatList.length - 1].id
+            console.log('chatList', chatList)
             return <Answer
               key={item.id}
               item={item}
+              index={index}
               feedbackDisabled={feedbackDisabled}
               onFeedback={onFeedback}
+              onSend={onSend}
               isResponsing={isResponsing && isLast}
             />
           }
